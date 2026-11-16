@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # Pegorion Quantum-Resilient Security Backend API
+  quantum-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pegorion-quantum-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - HOST=0.0.0.0
+      - CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+      - DATABASE_URL=sqlite:///./instance/pegorion.db
+      - SECRET_KEY=generate-a-strong-secret-key-for-production
+      - ENVIRONMENT=production
+    volumes:
+      - backend-data:/app/instance
+      - backend-vault:/app/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Quantum Security Center Next.js Frontend
+  quantum-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: pegorion-quantum-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+    depends_on:
+      quantum-backend:
+        condition: service_healthy
+
+volumes:
+  backend-data:
+  backend-vault:
