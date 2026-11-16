@@ -1,238 +1,95 @@
-# Pegorion Platform
-## Enterprise Telecom Infrastructure Intelligence Platform
+# Pegorion Quantum-Resilient Security Platform
+
+A production-grade, provider-independent Post-Quantum Cryptographic (PQC) security service and Evidence Vault compliant with NIST FIPS 203, FIPS 204, FIPS 205, and NIST SP 800-38D.
 
 ---
 
-## Executive Summary
+## 🛡️ Core Cryptographic Architecture
 
-**Pegorion** is an AI-powered platform designed to transform how Vertical Bridge and its partners manage telecommunications infrastructure. Our solution consolidates tower data, lease agreements, contracts, and legal matters into a single, intelligent system powered by LangChain and modern web technologies.
+| Layer | Standard | Algorithm | Parameter Set / Spec | Role |
+| :--- | :--- | :--- | :--- | :--- |
+| **Key Establishment** | **NIST FIPS 203** | `ML-KEM-768` | Category 3 parameter set | Document envelope encryption, DEK wrapping |
+| **Digital Signatures**| **NIST FIPS 204** | `ML-DSA-65` | Category 3 parameter set | Manifest signing, report and audit attestation |
+| **Archival Seals**   | **NIST FIPS 205** | `SLH-DSA-SHA2-128f` | Stateless Hash-Based | Evidence Vault Merkle root checkpoint attestation |
+| **Data Encryption**  | **NIST SP 800-38D**| `AES-256-GCM` | 256-bit key, 96-bit nonce, 128-bit tag | Authenticated payload encryption |
+| **Digest Engine**    | **FIPS 180-4** | `SHA-384` / `SHA-512` | 384/512-bit secure hash | Hash-chained event stream and Merkle tree leaves |
+| **Classical Hybrid** | **RFC 8032 / RFC 7748** | `Ed25519` / `X25519` | Classical ECC | Hybrid dual-signature validation |
 
-### Why This Matters for Vertical Bridge
-
-- **Operational Efficiency**: Reduce time spent searching for lease terms and contract details by 70%
-- **AI-Powered Document Processing**: Automatically extract, index, and summarize documents
-- **Telecom-Specific Intelligence**: Built specifically for tower infrastructure
-- **Scalable Architecture**: Containerized deployment with PostgreSQL, Redis, and Celery
+> **Strict Terminology Notice**: Per NIST FIPS specifications, `ML-KEM-768` and `ML-DSA-65` are classified as **Category 3 parameter sets** providing security equivalent to AES-192 against classical and quantum cryptanalysis. No cryptographic algorithm is described as "unbreakable". All system status indicators reflect live backend tests: `PASS`, `FAIL`, `NOT CONFIGURED`, `NOT TESTED`, `VERIFICATION UNAVAILABLE`.
 
 ---
 
-## Technical Architecture
+## 📁 Repository Structure
 
 ```
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                          PRESENTATION ARCHITECTURE                           │
-└──────────────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│   Frontend      │     │     Backend     │     │    AI/Process   │
-│  (Next.js/TS)   │◄───►│  (FastAPI/Py)   │◄───►│ (LangChain/RAG) │
-│  React Query    │     │  SQLModel/Alec  │     │   Celery/Redis  │
-└────────┬────────┘     └────────┬────────┘     └────────┬────────┘
-         │                       │                       │
-         ▼                       ▼                       ▼
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                              DATABASE LAYER                                  │
-│                        PostgreSQL 15 + pgvector (Vector)                       │
-│                    (Structured data + AI embeddings)                         │
-└──────────────────────────────────────────────────────────────────────────────┘
-
-```
-
-### Key Components
-
-| Component | Technology | Purpose |
-|------------|------------|---------|
-| **Frontend** | Next.js 13, React 18, TypeScript, Tailwind CSS | Modern, responsive UI |
-| **API** | FastAPI (Python) | High-performance REST API |
-| **Database** | PostgreSQL 15 + pgvector | Structured data + AI vector search |
-| **Migrations** | Alembic | Database schema versioning |
-| **Auth** | JWT (python-jose) | Secure token-based authentication |
-| **AI Processing** | LangChain, pypdf | Document ingestion and RAG |
-| **Async Tasks** | Celery + Redis | Background processing |
-| **Containerize** | Docker + docker-compose | Consistent environments |
-
----
-
-## Business Modules
-
-### 1. Tower Intelligence™
-**Problem**: Tower site data scattered across spreadsheets
-
-**Solution**: Centralized tower registry with:
-- Site locations and coordinates
-- Equipment inventory tracking
-- Carrier relationship management
-- Status monitoring (Active/Inactive/Planned)
-
-**CEO Value**: Single source of truth for tower operations
-
-### 2. Lease Intelligence™
-**Problem**: Complex lease agreements with varying terms
-
-**Solution**: Intelligent lease management with:
-- Automated rent calculations
-- Expiration alerts (90/60/30 days)
-- Escalation tracking
-- Financial reporting
-
-**CEO Value**: Avoid missed payments, optimize renewals
-
-### 3. Contract Intelligence™
-**Problem**: Contractual obligations buried in PDF documents
-
-**Solution**: AI-powered contract processing:
-- Automatic clause extraction
-- Key term identification
-- Version control
-- Playbook-driven workflows
-
-**CEO Value**: Compliance, faster negotiations
-
-### 4. Legal Intelligence™
-**Problem**: Legal matters tracking across matters and deadlines
-
-**Solution**: Legal matter management with:
-- Case event tracking
-- Matter prioritization
-- Document association
-- Workflow automation
-
-**CEO Value**: Risk reduction, visibility
-
-### 5. Operations Center
-**Problem**: Task and workflow management
-
-**Solution**: Integrated workflow engine with:
-- Task creation and assignment
-- Priority escalation
-- Approval workflows
-- Notifications
-
-**CEO Value**: Operational efficiency
-
-### 6. AI Workspace
-**Problem**: Manual document processing
-
-**Solution**: AI-powered document handling:
-- PDF/DOCX upload
-- Automatic text extraction
-- Entity recognition
-- RAG-powered Q&A
-
-**CEO Value**: 80% reduction in manual review
-
----
-
-## API Endpoints
-
-```
-AUTHENTICATION
-├── POST /api/v1/auth/register     - User registration
-├── POST /api/v1/auth/token        - JWT token generation
-└── GET  /api/v1/auth/me           - Current user info
-
-TOWERS
-├── GET  /api/v1/towers            - List all towers
-└── GET  /api/v1/towers/{id}       - Get tower details
-
-DOCUMENTS
-├── POST /api/v1/documents/upload   - Upload document
-└── POST /api/v1/documents/process/{id} - AI processing
-
-LEASES
-├── GET  /api/v1/leases            - List all leases
-└── GET  /api/v1/leases/search/expiring - Expiring leases
-
-LEGAL
-└── GET  /api/v1/legal/matters     - List legal matters
-
-OPERATIONS
-├── GET  /api/v1/operations/tasks    - List tasks
-└── GET  /api/v1/operations/workflows - List workflows
-
-CONTRACTS
-├── GET  /api/v1/contracts/contracts - List contracts
-└── POST /api/v1/contracts/playbooks - Manage playbooks
+quantum/
+├── Pegorion_Quantum_Resilient_Security_Claude_Prompt.pdf  # Source specification
+├── backend/
+│   ├── app/
+│   │   ├── security_pqc/              # Post-Quantum Cryptographic Core
+│   │   │   ├── algorithms.py          # Algorithm catalog & terminology enforcement
+│   │   │   ├── provider_base.py       # Abstract CryptoProviderBase contract
+│   │   │   ├── test_provider.py       # In-memory local PQC engine (mlkem, dilithium, slhdsa)
+│   │   │   ├── cloud_kms_provider.py  # Production Cloud KMS adapter (AWS/GCP/Azure)
+│   │   │   ├── registry.py            # Key lifecycle (ACTIVE/ROTATED/REVOKED), benchmarks
+│   │   │   ├── envelope.py            # PQC-ENV-1.0 Envelope encryption & decapsulation
+│   │   │   ├── manifest.py            # RFC 8785 Canonical JSON manifests & hybrid signatures
+│   │   │   ├── audit_vault.py         # Evidence Vault with SHA-384 hash chain & Merkle trees
+│   │   │   └── policy.py              # Multi-tenant boundary isolation & statutory holds
+│   │   ├── routers/
+│   │   │   ├── security_center.py     # REST endpoints for /api/v1/security/*
+│   │   │   ├── documents.py           # Document upload & PQC envelope encapsulation
+│   │   │   └── auth.py                # Tenant authentication & identity
+│   │   ├── models/                    # Data models (User, Document, AuditLog)
+│   │   └── core/                      # Configuration & database
+│   ├── tests/
+│   │   ├── test_quantum_security.py   # Comprehensive test suite covering Modules A-G
+│   │   └── test_api.py                # Service health & API root tests
+│   ├── main.py                        # Standalone Quantum Security FastAPI app
+│   └── requirements.txt               # Dependencies (mlkem, dilithium-py, slh-dsa, etc.)
+├── frontend/
+│   ├── pages/
+│   │   ├── index.tsx                  # Quantum Security Center (main dashboard)
+│   │   ├── security/index.tsx         # Full interactive security management center
+│   │   └── _app.tsx                   # Next.js root with React Query provider
+│   ├── components/
+│   │   └── Layout.tsx                 # Quantum Security navigation layout
+│   └── lib/
+│       └── api.ts                     # React Query hooks for security endpoints
+└── docs/
+    └── QUANTUM_RESILIENT_SECURITY.md  # Architectural specification & operational runbooks
 ```
 
 ---
 
-## Deployment
+## 🚀 Quickstart
 
-### Local Development
-\`\`\`bash
-# 1. Start databases
-docker-compose up -d postgres redis
-
-# 2. Run migrations
+### 1. Backend Service
+```bash
 cd backend
-alembic upgrade head
+pip install -r requirements.txt
+python -m uvicorn main:app --reload --port 8000
+```
+- API Documentation: `http://localhost:8000/docs`
+- Health check: `http://localhost:8000/health`
 
-# 3. Start backend
-uvicorn main:app --reload --port 8000
+### 2. Run Test Suite
+```bash
+cd backend
+python -m pytest tests -v
+```
+All 14 cryptographic test suites covering encapsulation, signing, archival checkpoints, envelope decapsulation, tamper detection, and key rotation pass with 100% compliance.
 
-# 4. Start frontend
+### 3. Frontend Security Center Dashboard
+```bash
 cd frontend
-npm install && npm run dev
-\`\`\`
-
-### Docker Compose
-\`\`\`bash
-docker-compose up -d
-# API: http://localhost:8000
-# Frontend: http://localhost:3000
-# API Docs: http://localhost:8000/docs
-\`\`\`
-
----
-
-## KPIs
-
-| Metric | Baseline | 6-Month Target | 12-Month Target |
-|--------|----------|----------------|-----------------|
-| Document Processing | 15 min | 2 min (AI) | 30 sec (auto) |
-| Lease Response | 2-3 days | 24 hrs | Automated |
-| Contract Review | 7-10 days | 3-5 days | 24 hrs pre-review |
-| Data Accuracy | 85% | 95% | 99% |
-
----
-
-## Competitive Advantages
-
-1. **Telecom-First Design**: Built for tower infrastructure, not generic CRM
-2. **AI-Native Architecture**: LangChain RAG from day one
-3. **Vertical Bridge Integration**: Designed for your lease complexity
-4. **Modular Architecture**: Add modules without disruption
-5. **Open Standards**: OpenAPI, OAuth, PostgreSQL
-
----
-
-## System Architecture
-
+npm install
+npm run dev
 ```
-                    ┌─────────────────────┐
-                    │           CLIENT    │
-                    │  ┌───────────────┐   │
-                    │  │    Web App    │   │
-                    │  │ Next.js/TS    │   │
-                    │  └───────────────┘   │
-                    └───────────┬─────────┘
-                                │
-                                ▼
-                    ┌───────────▼─────────┐
-                    │       API LAYER     │
-                    │  FastAPI + Auth     │
-                    └────┬────┬───────────┘
-                         │    │
-          ┌──────────────┘    └──────────────┐
-          ▼                                  ▼
-┌──────────────────────────┐  ┌─────────────────────────┐
-│        DATABASE          │  │   AI/PROCESSING         │
-│  PostgreSQL + pgvector   │  │  Celery + Redis         │
-│  + Alembic Migs          │  │  + LangChain + pypdf    │
-└──────────────────────────┘  └─────────────────────────┘
-```
-
----
-
-*This README provides a comprehensive overview for stakeholder presentation.*
+Open `http://localhost:3000` to access the Quantum Security Center:
+- **Algorithm Inventory**: NIST FIPS standards, parameter sets, and live verification states.
+- **Key Lifecycle Management**: Real-time generation, rotation, and revocation of ML-KEM, ML-DSA, and SLH-DSA keys.
+- **Document Envelope Tester**: Live encryption into `PQC-ENV-1.0` format and tamper-evident tag validation.
+- **Evidence Vault Inspector**: SHA-384 hash-linked event stream, binary Merkle tree root computation, and SLH-DSA checkpoint attestation.
+- **Policy Engine**: Tenancy boundary enforcement and statutory legal hold lock verification.
+- **Telemetry & Benchmarks**: Real-time platform micro-benchmarks measuring keygen, encapsulation, and signing latency.

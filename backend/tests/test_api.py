@@ -1,4 +1,4 @@
-"""API tests for Pegorion Platform"""
+"""API tests for Pegorion Quantum-Resilient Security Platform."""
 import sys
 from pathlib import Path
 import pytest
@@ -15,18 +15,24 @@ client = TestClient(app)
 def test_health_check():
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "healthy"}
+    assert response.json()["status"] == "healthy"
 
 def test_root():
     response = client.get("/")
     assert response.status_code == 200
-    assert "Pegorion" in response.json()["message"]
+    assert "Quantum-Resilient Security" in response.json()["name"]
+
+def test_api_root():
+    response = client.get("/api/v1/")
+    assert response.status_code == 200
+    endpoints = response.json()["endpoints"]
+    assert any("/api/v1/security/algorithms" in ep for ep in endpoints)
 
 def test_register_and_login():
     user_data = {
-        "email": "test@example.com",
-        "full_name": "Test User",
-        "password": "testpass123"
+        "email": "test-quantum-user@verticalbridge.com",
+        "full_name": "PQC Security Officer",
+        "password": "SecurePassword123!"
     }
 
     # Register
@@ -42,8 +48,3 @@ def test_register_and_login():
     data = response.json()
     assert "access_token" in data
     assert data["token_type"] == "bearer"
-
-def test_get_towers():
-    response = client.get("/api/v1/towers")
-    assert response.status_code == 200
-    assert isinstance(response.json(), list)

@@ -3,34 +3,33 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import {
   Menu,
-  BarChart2,
-  FileText,
-  Scale,
-  Settings,
-  Home,
-  Search,
+  Shield,
+  Key,
+  Lock,
+  Database,
+  Sliders,
+  Activity,
   User,
-  LogOut,
-  Shield
+  LogOut
 } from 'lucide-react'
 
 const navItems = [
-  { name: 'Overview', href: '/', icon: Home },
-  { name: 'Tower Intelligence', href: '/towers', icon: BarChart2 },
-  { name: 'Lease Intelligence', href: '/leases', icon: FileText },
-  { name: 'Legal Intelligence', href: '/legal', icon: Scale },
-  { name: 'Operations', href: '/operations', icon: Settings },
-  { name: 'AI Workspace', href: '/ai', icon: Search },
-  { name: 'Security Center', href: '/security', icon: Shield },
+  { name: 'Security Overview', href: '/', tab: 'inventory', icon: Shield },
+  { name: 'Key Lifecycle', href: '/?tab=keys', tab: 'keys', icon: Key },
+  { name: 'Document Envelope', href: '/?tab=document', tab: 'document', icon: Lock },
+  { name: 'Evidence Vault', href: '/?tab=vault', tab: 'vault', icon: Database },
+  { name: 'Policy & Holds', href: '/?tab=policy', tab: 'policy', icon: Sliders },
+  { name: 'Benchmarks & Telemetry', href: '/?tab=benchmarks', tab: 'benchmarks', icon: Activity },
 ]
 
 export default function Layout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const router = useRouter()
 
-  const isCurrent = (href: string) => {
-    if (href === '/') return router.pathname === '/'
-    return router.pathname.startsWith(href)
+  const isCurrent = (tab: string, href: string) => {
+    const currentTab = (router.query.tab as string) || 'inventory'
+    if (tab === 'inventory' && href === '/' && !router.query.tab) return true
+    return currentTab === tab
   }
 
   return (
@@ -52,7 +51,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           <nav className="flex-1 flex flex-col px-3 pb-2 space-y-1 mt-6">
             {navItems.map((item) => {
               const Icon = item.icon
-              const active = isCurrent(item.href)
+              const active = isCurrent(item.tab, item.href)
               return (
                 <Link
                   key={item.name}
@@ -76,8 +75,8 @@ export default function Layout({ children }: { children: ReactNode }) {
 
           <div className="px-4 mt-auto border-t border-[#162D4A] pt-4">
             <div className="flex items-center text-xs text-slate-400">
-              <User className="w-4 h-4 mr-2 text-slate-400" />
-              <span>Vertical Bridge Platform</span>
+              <Shield className="w-4 h-4 mr-2 text-blue-400" />
+              <span>Pegorion Quantum PQC</span>
             </div>
           </div>
         </div>
@@ -109,7 +108,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             <nav className="flex-1 flex flex-col px-3 pb-2 space-y-1">
               {navItems.map((item) => {
                 const Icon = item.icon
-                const active = isCurrent(item.href)
+                const active = isCurrent(item.tab, item.href)
                 return (
                   <Link
                     key={item.name}

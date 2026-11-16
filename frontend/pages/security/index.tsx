@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Head from 'next/head'
+import { useRouter } from 'next/router'
 import Layout from '../../components/Layout'
 import {
   Shield,
@@ -98,7 +99,15 @@ interface CheckpointItem {
 }
 
 export default function SecurityCenter() {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState<'inventory' | 'keys' | 'document' | 'vault' | 'policy' | 'benchmarks'>('inventory')
+
+  useEffect(() => {
+    const tabParam = router.query.tab as string
+    if (tabParam && ['inventory', 'keys', 'document', 'vault', 'policy', 'benchmarks'].includes(tabParam)) {
+      setActiveTab(tabParam as any)
+    }
+  }, [router.query.tab])
   
   // Real backend states
   const [inventory, setInventory] = useState<any>(null)

@@ -1,21 +1,24 @@
-"""Pegorion Platform - Enterprise Telecom Infrastructure Intelligence API."""
+"""Pegorion Quantum-Resilient Security Platform API.
+
+NIST FIPS 203 (ML-KEM-768), FIPS 204 (ML-DSA-65), FIPS 205 (SLH-DSA-SHA2-128f),
+NIST SP 800-38D (AES-256-GCM), Canonical JSON Manifests, and Evidence Vault.
+"""
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import os
 
-from app.core.config import settings, validate_file_upload, ALLOWED_EXTENSIONS, MAX_FILE_SIZE_MB
-from app.routers import auth, towers, documents, leases, legal, operations, contracts, ai, security_center
+from app.core.config import settings
+from app.routers import auth, documents, security_center
 
 app = FastAPI(
-    title="Pegorion Platform API",
+    title="Pegorion Quantum-Resilient Security API",
     version="1.0.0",
-    description="Enterprise telecom infrastructure intelligence platform for Vertical Bridge",
+    description="Provider-independent quantum-resilient security service, envelope encryption, and Evidence Vault",
     docs_url="/docs",
     redoc_url="/redoc"
 )
 
-# CORS for local development - restricted from wildcard for security
-# Add production domains as needed via CORS_ORIGINS environment variable
+# CORS configuration
 allowed_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",") if o.strip()]
 app.add_middleware(
     CORSMiddleware,
@@ -25,56 +28,45 @@ app.add_middleware(
     allow_headers=["Content-Type", "Authorization"],
 )
 
-# API Routers - versioned under /api/v1
+# Core Quantum Security & Document Routers
 app.include_router(auth.router, prefix="/api/v1")
-app.include_router(towers.router, prefix="/api/v1")
 app.include_router(documents.router, prefix="/api/v1")
-app.include_router(leases.router, prefix="/api/v1")
-app.include_router(legal.router, prefix="/api/v1")
-app.include_router(operations.router, prefix="/api/v1")
-app.include_router(contracts.router, prefix="/api/v1")
-app.include_router(ai.router, prefix="/api/v1")
 app.include_router(security_center.router, prefix="/api/v1")
 
 @app.get("/")
 def root():
     """API root endpoint."""
     return {
-        "name": "Pegorion Platform API",
+        "name": "Pegorion Quantum-Resilient Security API",
         "version": "1.0.0",
-        "description": "Enterprise telecom infrastructure intelligence platform",
-        "message": "Welcome to Pegorion Platform API"
+        "standard": "NIST FIPS 203, FIPS 204, FIPS 205, NIST SP 800-38D",
+        "message": "Quantum-Resilient Security Foundation Active"
     }
 
 @app.get("/health")
 def health_check():
     """Health check endpoint."""
-    return {"status": "healthy"}
+    return {"status": "healthy", "service": "quantum-security-platform"}
 
 @app.get("/api/v1/")
 def api_root():
-    """API root with available endpoints."""
+    """Available quantum security API endpoints."""
     return {
         "api_version": "1.0.0",
         "endpoints": [
-            "/api/v1/auth/register",
-            "/api/v1/auth/token",
-            "/api/v1/auth/me",
-            "/api/v1/auth/upload_document",
-            "/api/v1/towers",
+            "/api/v1/security/algorithms",
+            "/api/v1/security/keys",
+            "/api/v1/security/keys/generate",
+            "/api/v1/security/keys/rotate",
+            "/api/v1/security/verify/envelope",
+            "/api/v1/security/verify/manifest",
+            "/api/v1/security/evidence-vault/events",
+            "/api/v1/security/evidence-vault/checkpoint",
+            "/api/v1/security/evidence-vault/verify-integrity",
+            "/api/v1/security/policy/evaluate",
+            "/api/v1/security/benchmarks",
+            "/api/v1/security/self-test",
             "/api/v1/documents",
-            "/api/v1/documents/upload",
-            "/api/v1/documents/process/{document_id}",
-            "/api/v1/leases",
-            "/api/v1/leases/search/expiring",
-            "/api/v1/legal/matters",
-            "/api/v1/operations/tasks",
-            "/api/v1/operations/tasks/{task_id}",
-            "/api/v1/operations/workflows",
-            "/api/v1/contracts/contracts",
-            "/api/v1/contracts/contracts/{contract_id}",
-            "/api/v1/contracts/playbooks"
+            "/api/v1/documents/upload"
         ]
     }
-
-
