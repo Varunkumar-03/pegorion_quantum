@@ -1,0 +1,17 @@
+services:
+  # Pegorion Quantum-Resilient Security Backend Web Service
+  - type: web
+    name: pegorion-quantum-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    region: oregon
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: ENVIRONMENT
+        value: production
+      - key: CORS_ORIGINS
+        value: https://*.vercel.app,http://localhost:3000
