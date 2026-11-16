@@ -36,15 +36,15 @@ export default function Layout({ children }: { children: ReactNode }) {
       {/* Sidebar with Dark Navy color palette from reference */}
       <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-[#0B1A2E] border-r border-[#162D4A] z-40">
         <div className="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto">
-          <div className="px-6 pt-3 pb-2 flex items-center justify-between">
-            <div className="flex items-center pl-3">
-              {/* VERTICAL BRIDGE LOGO (White on Dark Navy) */}
+          <div className="px-6 pt-5 pb-2 flex items-center justify-between">
+            <Link href="/" className="block focus:outline-none">
+              {/* VERTICAL BRIDGE OFFICIAL VECTOR LOGO (Pure White, Zero Background, High Res) */}
               <img
-                src="https://www.deepsouthcommunications.com/wp-content/uploads/2020/11/vertical-bridge-logo.png"
+                src="/vertical-bridge-white.svg"
                 alt="Vertical Bridge"
-                className="h-12 w-auto max-w-[180px] object-contain brightness-0 invert opacity-95"
+                className="h-12 w-auto max-w-[200px] object-contain drop-shadow-sm transition-opacity hover:opacity-90"
               />
-            </div>
+            </Link>
           </div>
 
           <nav className="flex-1 flex flex-col px-3 pb-2 space-y-1 mt-6">
@@ -90,13 +90,13 @@ export default function Layout({ children }: { children: ReactNode }) {
           />
           <aside className="relative flex w-64 flex-col bg-[#0B1A2E] border-r border-[#162D4A]">
             <div className="flex items-center justify-between px-6 pt-5 pb-4">
-              <div className="flex items-center pl-3">
+              <Link href="/" className="block focus:outline-none" onClick={() => setSidebarOpen(false)}>
                 <img
-                  src="https://www.deepsouthcommunications.com/wp-content/uploads/2020/11/vertical-bridge-logo.png"
+                  src="/vertical-bridge-white.svg"
                   alt="Vertical Bridge"
-                  className="h-10 w-auto max-w-[160px] object-contain brightness-0 invert"
+                  className="h-11 w-auto max-w-[180px] object-contain drop-shadow-sm"
                 />
-              </div>
+              </Link>
               <button
                 onClick={() => setSidebarOpen(false)}
                 className="rounded-none p-2 text-slate-400 hover:bg-[#162D4A] hover:text-white"
@@ -143,11 +143,13 @@ export default function Layout({ children }: { children: ReactNode }) {
           >
             <Menu className="h-6 w-6" />
           </button>
-          <img
-            src="https://www.deepsouthcommunications.com/wp-content/uploads/2020/11/vertical-bridge-logo.png"
-            alt="Vertical Bridge"
-            className="h-8 w-auto"
-          />
+          <Link href="/" className="block focus:outline-none">
+            <img
+              src="/vertical-bridge-color.svg"
+              alt="Vertical Bridge"
+              className="h-8 w-auto max-w-[160px] object-contain"
+            />
+          </Link>
           <div className="w-10" />
         </div>
 
