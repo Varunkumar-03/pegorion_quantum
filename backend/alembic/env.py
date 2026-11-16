@@ -12,12 +12,14 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from alembic import context
 
 # Import the Base and models from the correct location
+from app.core.config import settings
 from app.models.base_class import Base
 from app.models import *
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in terms of context.config
 config = context.config
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

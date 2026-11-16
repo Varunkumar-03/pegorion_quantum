@@ -136,3 +136,4 @@ Combined suite (`backend/tests/`): **14 passed** (including original regression 
    - `PQC_KMS_KEY_ARN`: Resource ARN / identifier of the KMS master key.
    - Standard cloud provider credentials (`AWS_ACCESS_KEY_ID`, `GOOGLE_APPLICATION_CREDENTIALS`, etc.).
 2. Restart backend service. `CloudKMSProvider` automatically detects credentials and reports `status: PASS`.
+

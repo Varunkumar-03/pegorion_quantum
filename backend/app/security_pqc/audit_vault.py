@@ -431,3 +431,4 @@ class EvidenceVaultService:
 
 # Global instance
 evidence_vault_service = EvidenceVaultService()
+

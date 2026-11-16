@@ -221,3 +221,4 @@ class DocumentEnvelopeService:
 
 # Global instance
 document_envelope_service = DocumentEnvelopeService()
+

@@ -1,79 +1,112 @@
-import { useState } from 'react'
-import Link from 'next/link'
-import { Menu, Home, BarChart2, FileText, Scale, Settings, Search } from 'lucide-react'
+import Layout from '../../components/Layout'
+import { ShieldCheck, Radio, AlertTriangle, FileText, CheckCircle2, RefreshCw } from 'lucide-react'
 
-const navItems = [
-  { name: 'Overview', href: '/', icon: Home },
-  { name: 'Tower Intelligence', href: '/towers', icon: BarChart2 },
-  { name: 'Lease Intelligence', href: '/leases', icon: FileText },
-  { name: 'Legal Intelligence', href: '/legal', icon: Scale },
-  { name: 'Operations', href: '/operations', icon: Settings },
-  { name: 'AI Workspace', href: '/ai', icon: Search },
+const complianceItems = [
+  {
+    code: 'FAA-PART-77',
+    agency: 'Federal Aviation Administration',
+    title: 'Safe, Efficient Use, and Preservation of the Navigable Airspace',
+    status: 'Compliant',
+    lastAudit: '2024-05-15',
+    scope: 'Towers exceeding 200ft AGL or near runway glidepaths (Dallas, Houston sites)',
+    details: 'Obstruction evaluation notice Form 7460-1 on file with FAA OE/AAA.'
+  },
+  {
+    code: 'FCC-PART-17',
+    agency: 'Federal Communications Commission',
+    title: 'Construction, Marking, and Lighting of Antenna Structures',
+    status: 'Compliant',
+    lastAudit: '2024-06-01',
+    scope: 'Medium-intensity dual strobe obstruction lighting & daily telemetry',
+    details: 'Automated monitoring unit reporting 24/7 status directly to Network Operations.'
+  },
+  {
+    code: 'FCC-NEPA',
+    agency: 'FCC / Advisory Council on Historic Preservation',
+    title: 'National Environmental Policy Act (NEPA) & Section 106 Historical Review',
+    status: 'Compliant',
+    lastAudit: '2024-04-10',
+    scope: 'Colocation compounds and compound expansion clearances',
+    details: 'Phase I ESA clearance and tribal consultation records archived.'
+  },
+  {
+    code: 'TIA-222-H',
+    agency: 'Telecommunications Industry Association',
+    title: 'Structural Standard for Antenna Supporting Structures and Antennas',
+    status: 'Under Review',
+    lastAudit: '2024-06-12',
+    scope: 'Dallas Site Alpha Massive MIMO 64T64R wind load recertification',
+    details: 'Structural engineering calculation in progress by lead PE.'
+  }
 ]
 
 export default function RegulatoryPage() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-white border-r border-gray-200">
-        <div className="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto">
-          <div className="px-4 pb-2 border-b border-gray-200">
-            <h2 className="text-lg font-bold text-gray-900">Pegorion</h2>
+    <Layout>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight">Regulatory Intelligence</h1>
+            <p className="mt-1 text-xs text-slate-600">FCC tower registrations, FAA Part 77 airspace clearances, and NEPA environmental compliance</p>
           </div>
-          <nav className="flex-1 flex flex-col px-2 pb-2 space-y-1">
-            {navItems.map((item) => {
-              const Icon = item.icon
-              return (
-                <Link key={item.name} href={item.href} className="text-gray-600 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md hover:bg-gray-100">
-                  <Icon className="mr-4 flex-shrink-0 h-5 w-5 text-gray-400" />
-                  {item.name}
-                </Link>
-              )
-            })}
-          </nav>
+          <button
+            onClick={() => window.location.reload()}
+            className="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50"
+          >
+            <RefreshCw className="w-3.5 h-3.5 mr-1.5 text-slate-500" />
+            Refresh
+          </button>
         </div>
-      </aside>
 
-      <div className="md:hidden flex items-center justify-between p-4 border-b bg-white">
-        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-100">
-          <Menu className="h-6 w-6" />
-        </button>
-        <h1 className="text-lg font-semibold">Pegorion</h1>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-white border border-slate-200 p-5 shadow-sm">
+            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Monitored Regulations</h3>
+            <p className="mt-2 text-2xl font-bold text-slate-900">4 Standards</p>
+            <p className="text-[11px] text-slate-500 mt-1">FAA, FCC, NEPA, TIA-222-H</p>
+          </div>
+          <div className="bg-white border border-slate-200 p-5 shadow-sm">
+            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Overall Compliance</h3>
+            <p className="mt-2 text-2xl font-bold text-emerald-700">92% Audited</p>
+            <p className="text-[11px] text-slate-500 mt-1">Zero outstanding FCC citations</p>
+          </div>
+          <div className="bg-white border border-slate-200 p-5 shadow-sm">
+            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Antenna Structure Registrations</h3>
+            <p className="mt-2 text-2xl font-bold text-blue-700">5 Active ASRs</p>
+            <p className="text-[11px] text-slate-500 mt-1">ASR #1049281, #1204855, #1305912...</p>
+          </div>
+        </div>
+
+        <div className="bg-white border border-slate-200 shadow-sm">
+          <div className="px-5 py-3.5 border-b border-slate-200">
+            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Active Regulatory Mandates & Standards</h3>
+          </div>
+          <div className="divide-y divide-slate-100">
+            {complianceItems.map((item) => (
+              <div key={item.code} className="p-5 hover:bg-slate-50/70 transition-colors">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono font-bold text-xs bg-slate-100 text-slate-800 px-2 py-0.5 border border-slate-200">
+                      {item.code}
+                    </span>
+                    <h4 className="font-semibold text-sm text-slate-900">{item.title}</h4>
+                  </div>
+                  <span className={`inline-flex items-center px-2 py-0.5 text-xs font-semibold w-fit ${
+                    item.status === 'Compliant' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                  }`}>
+                    {item.status === 'Compliant' ? <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-600" /> : <AlertTriangle className="w-3.5 h-3.5 mr-1 text-amber-600" />}
+                    {item.status.toUpperCase()}
+                  </span>
+                </div>
+                <div className="mt-2 text-xs text-slate-600 space-y-1">
+                  <div><span className="font-medium text-slate-700">Agency:</span> {item.agency}</div>
+                  <div><span className="font-medium text-slate-700">Scope:</span> {item.scope}</div>
+                  <div><span className="font-medium text-slate-700">Audit Status:</span> {item.details} (Last audit: {item.lastAudit})</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-
-      <main className="flex flex-col flex-1 md:pl-64">
-        <div className="flex-1 py-6 px-4 sm:px-6 lg:px-8">
-          <h1 className="text-2xl font-bold text-gray-900">Regulatory Intelligence</h1>
-          <p className="mt-1 text-sm text-gray-500">FCC rules, FAA regulations, and compliance tracking</p>
-
-          <div className="mt-6 bg-white shadow border border-gray-200 rounded-none p-6">
-            <div className="flex items-center mb-4">
-              <Search className="h-8 w-8 text-green-600 mr-3" />
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-1">Regulatory Repository</h3>
-                <p className="text-sm text-gray-500">Connect to backend API for regulation management</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-              <div className="border border-gray-200 rounded-none p-4">
-                <h4 className="font-medium text-gray-900 mb-2">FCC Regulations</h4>
-                <p className="text-sm text-gray-500">Title 47 telecommunications rules</p>
-              </div>
-              <div className="border border-gray-200 rounded-none p-4">
-                <h4 className="font-medium text-gray-900 mb-2">FAA Part 77</h4>
-                <p className="text-sm text-gray-500">Tower obstruction safety rules</p>
-              </div>
-              <div className="border border-gray-200 rounded-none p-4">
-                <h4 className="font-medium text-gray-900 mb-2">Compliance Alerts</h4>
-                <p className="text-sm text-gray-500">Renewal and filing deadlines</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
+    </Layout>
   )
 }

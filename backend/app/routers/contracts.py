@@ -23,7 +23,20 @@ def get_contracts(
     query = db.query(Contract)
     if contract_type:
         query = query.filter(Contract.contract_type == contract_type)
-    return query.offset(skip).limit(limit).all()
+    contracts = query.offset(skip).limit(limit).all()
+    return [
+        {
+            "id": c.id,
+            "contract_number": c.contract_number,
+            "contract_type": c.contract_type,
+            "title": c.title,
+            "status": c.status,
+            "lease_id": c.lease_id,
+            "signed_date": c.signed_date.isoformat() if c.signed_date else None,
+            "document_id": c.document_id
+        }
+        for c in contracts
+    ]
 
 @router.get("/contracts/{contract_id}", response_model=dict)
 def get_contract(contract_id: str, db: Session = Depends(get_db)):
@@ -31,7 +44,16 @@ def get_contract(contract_id: str, db: Session = Depends(get_db)):
     contract = db.query(Contract).filter(Contract.id == contract_id).first()
     if not contract:
         raise HTTPException(status_code=404, detail="Contract not found")
-    return contract
+    return {
+        "id": contract.id,
+        "contract_number": contract.contract_number,
+        "contract_type": contract.contract_type,
+        "title": contract.title,
+        "status": contract.status,
+        "lease_id": contract.lease_id,
+        "signed_date": contract.signed_date.isoformat() if contract.signed_date else None,
+        "document_id": contract.document_id
+    }
 
 @router.get("/contracts/{contract_id}/clauses", response_model=List[dict])
 def get_contract_clauses(contract_id: str, db: Session = Depends(get_db)):

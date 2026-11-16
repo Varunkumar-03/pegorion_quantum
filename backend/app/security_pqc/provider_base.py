@@ -171,3 +171,4 @@ class CryptoProviderBase(ABC):
     def compute_digest(self, data: bytes, algorithm: AlgorithmName = AlgorithmName.SHA_384) -> bytes:
         """Computes cryptographic digest using SHA-384 or SHA-512."""
         pass
+

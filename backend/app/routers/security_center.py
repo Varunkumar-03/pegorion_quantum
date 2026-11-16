@@ -308,3 +308,4 @@ def manage_legal_hold(
         raise HTTPException(status_code=400, detail="Invalid action: choose 'apply' or 'release'")
 
     return policy.__dict__
+

@@ -1,67 +1,98 @@
+import { useState, useEffect } from 'react'
 import Layout from '../../components/Layout'
-import { Scale, Calendar, AlertCircle } from 'lucide-react'
+import { Scale, Calendar, AlertCircle, RefreshCw, Shield } from 'lucide-react'
+import { useLegalMatters } from '../../lib/api'
 
-const cases = [
-  { id: 'VB-LEGAL-2024-001', title: 'Zoning Appeal - Dallas Site', type: 'litigation', status: 'Open', nextHearing: '2024-03-15', priority: 'High' },
-  { id: 'VB-LEGAL-2024-002', title: 'Easement Dispute - Houston Site', type: 'litigation', status: 'Pending', nextHearing: '2024-04-20', priority: 'Medium' },
-  { id: 'VB-LEGAL-2024-003', title: 'Permit Compliance - Austin Hub', type: 'regulatory', status: 'Resolved', nextHearing: '-', priority: 'Low' },
+const fallbackCases = [
+  { id: 'matter-101', matter_number: 'VB-LEGAL-2024-101', title: 'Lease Risk Review & Asymmetrical Cure Defense - Dallas Site Alpha', matter_type: 'Contract Review', status: 'open', priority: 'high', opened_date: '2024-06-15' },
+  { id: 'matter-102', matter_number: 'VB-LEGAL-2024-102', title: 'FAA Part 77 Obstruction Evaluation & Strobe Lighting Compliance', matter_type: 'compliance', status: 'open', priority: 'high', opened_date: '2024-05-20' },
+  { id: 'matter-103', matter_number: 'VB-LEGAL-2024-103', title: 'Houston Central Landlord Unilateral Default & Escalation Dispute', matter_type: 'litigation', status: 'open', priority: 'critical', opened_date: '2024-06-01' },
 ]
 
 export default function LitigationPage() {
+  const { data: apiMatters, isLoading, refetch } = useLegalMatters()
+  const cases = apiMatters && apiMatters.length > 0 ? apiMatters : fallbackCases
+
+  const openCount = cases.filter((c: any) => c.status?.toLowerCase() === 'open').length
+  const criticalCount = cases.filter((c: any) => c.priority?.toLowerCase() === 'critical' || c.priority?.toLowerCase() === 'high').length
+
   return (
     <Layout>
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Litigation Intelligence</h1>
-        <p className="mt-1 text-sm text-gray-500">Case tracking, precedent research, and litigation management</p>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight">Litigation & Legal Matters</h1>
+            <p className="mt-1 text-xs text-slate-600">Case tracking, precedent research, and cell site dispute management</p>
+          </div>
+          <button
+            onClick={() => refetch()}
+            className="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50"
+          >
+            <RefreshCw className="w-3.5 h-3.5 mr-1.5 text-slate-500" />
+            Refresh
+          </button>
+        </div>
 
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white shadow border border-gray-200 rounded-none p-6">
-            <h3 className="text-sm font-medium text-gray-500">Active Cases</h3>
-            <p className="mt-2 text-3xl font-bold text-black">2</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-white border border-slate-200 p-5 shadow-sm">
+            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Matters</h3>
+            <p className="mt-2 text-2xl font-bold text-slate-900">{cases.length}</p>
+            <p className="text-[11px] text-slate-500 mt-1">Pending and open dockets</p>
           </div>
-          <div className="bg-white shadow border border-gray-200 rounded-none p-6">
-            <h3 className="text-sm font-medium text-gray-500">Pending Hearings</h3>
-            <p className="mt-2 text-3xl font-bold text-black">2</p>
+          <div className="bg-white border border-slate-200 p-5 shadow-sm">
+            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">High / Critical Priority</h3>
+            <p className="mt-2 text-2xl font-bold text-red-700">{criticalCount}</p>
+            <p className="text-[11px] text-slate-500 mt-1">Requires immediate legal counsel</p>
           </div>
-          <div className="bg-white shadow border border-gray-200 rounded-none p-6">
-            <h3 className="text-sm font-medium text-gray-500">Resolved</h3>
-            <p className="mt-2 text-3xl font-bold text-black">1</p>
+          <div className="bg-white border border-slate-200 p-5 shadow-sm">
+            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Open Proceedings</h3>
+            <p className="mt-2 text-2xl font-bold text-amber-700">{openCount}</p>
+            <p className="text-[11px] text-slate-500 mt-1">Active negotiation / court matters</p>
           </div>
         </div>
 
-        <div className="mt-6 bg-white shadow border border-gray-200 rounded-none">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900">Case Repository</h3>
+        <div className="bg-white border border-slate-200 shadow-sm">
+          <div className="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between">
+            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Legal Matter Repository</h3>
+            <span className="text-xs text-slate-500">{cases.length} records active</span>
           </div>
-          <div className="p-6">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-200 text-xs">
+              <thead className="bg-slate-50 font-semibold text-slate-700">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matter #</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Next Hearing</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+                  <th className="px-4 py-2.5 text-left">Matter #</th>
+                  <th className="px-4 py-2.5 text-left">Title</th>
+                  <th className="px-4 py-2.5 text-left">Type</th>
+                  <th className="px-4 py-2.5 text-left">Status</th>
+                  <th className="px-4 py-2.5 text-left">Priority</th>
+                  <th className="px-4 py-2.5 text-left">Classification</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {cases.map((c) => (
-                  <tr key={c.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{c.id}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{c.title}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{c.type}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${c.status === 'Open' ? 'bg-red-100 text-red-800' : c.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
-                        {c.status}
+              <tbody className="bg-white divide-y divide-slate-100">
+                {cases.map((c: any) => (
+                  <tr key={c.id} className="hover:bg-slate-50/70">
+                    <td className="px-4 py-3 font-mono font-medium text-slate-900">{c.matter_number || c.id}</td>
+                    <td className="px-4 py-3 font-semibold text-slate-800">{c.title}</td>
+                    <td className="px-4 py-3 text-slate-600 capitalize">{c.matter_type?.replace('_', ' ')}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex items-center px-2 py-0.5 text-[11px] font-semibold ${
+                        c.status?.toLowerCase() === 'open' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
+                      }`}>
+                        {c.status?.toUpperCase()}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 flex items-center">
-                      <Calendar className="h-3 w-3 mr-1" /> {c.nextHearing}
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex items-center px-2 py-0.5 text-[11px] font-semibold ${
+                        c.priority?.toLowerCase() === 'critical' || c.priority?.toLowerCase() === 'high'
+                          ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'
+                      }`}>
+                        {c.priority?.toUpperCase()}
+                      </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${c.priority === 'High' ? 'bg-red-100 text-red-800' : c.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
-                        {c.priority}
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center text-purple-700 font-semibold gap-1 text-[11px]">
+                        <Shield className="w-3.5 h-3.5 text-purple-600" />
+                        RESTRICTED_LEGAL
                       </span>
                     </td>
                   </tr>

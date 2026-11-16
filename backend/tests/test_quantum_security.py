@@ -373,3 +373,4 @@ def test_security_center_endpoints():
     r_vault = client.get("/api/v1/security/vault/verify")
     assert r_vault.status_code == 200
     assert r_vault.json()["status"] in ["PASS", "FAIL"]
+

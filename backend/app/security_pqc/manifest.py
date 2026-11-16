@@ -235,3 +235,4 @@ class ManifestSigningService:
 
 # Global instance
 manifest_signing_service = ManifestSigningService()
+

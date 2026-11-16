@@ -111,6 +111,14 @@ const modules = [
     href: '/operations',
     stat: '57 Tasks',
     statLabel: 'Pending Actions'
+  },
+  {
+    name: 'Security Center',
+    description: 'NIST FIPS 203/204/205 post-quantum encryption, manifests, and Evidence Vault.',
+    icon: <Shield className="w-5 h-5 text-blue-700" />,
+    href: '/security',
+    stat: 'Active',
+    statLabel: 'Quantum Resilient'
   }
 ]
 

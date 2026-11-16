@@ -143,3 +143,4 @@ ALGORITHM_METADATA: Dict[str, Dict[str, Any]] = {
         "purpose": "Classical key-agreement component where required by dual-key protocol policy."
     }
 }
+

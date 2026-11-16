@@ -158,3 +158,4 @@ class CloudKMSProvider(CryptoProviderBase):
         if algorithm == AlgorithmName.SHA_384:
             return hashlib.sha384(data).digest()
         return hashlib.sha512(data).digest()
+

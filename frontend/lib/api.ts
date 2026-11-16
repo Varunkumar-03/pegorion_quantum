@@ -156,3 +156,121 @@ export async function register(userData: { email: string, full_name: string, pas
 export function logout() {
   localStorage.removeItem('token')
 }
+
+export interface Lease {
+  id: string
+  lease_number: string
+  property_id: string
+  landlord_id: string
+  term_months: number | null
+  start_date: string | null
+  end_date: string | null
+  annual_rent: number | null
+  rent_escalation_pct: number | null
+  status: string
+  organization_id?: string
+}
+
+export interface LegalMatter {
+  id: string
+  matter_number: string
+  title: string
+  matter_type: string
+  status: string
+  priority: string
+  organization_id?: string
+  opened_date: string | null
+}
+
+export interface Task {
+  id: string
+  title: string
+  description: string | null
+  status: string
+  priority: string
+  due_date: string | null
+  assigned_to: string | null
+}
+
+export interface Workflow {
+  id: string
+  name: string
+  description: string | null
+  workflow_type: string
+  is_active: boolean
+}
+
+export interface Contract {
+  id: string
+  contract_number: string
+  contract_type: string
+  title: string | null
+  status: string
+  signed_date: string | null
+}
+
+export function useLeases() {
+  return useQuery<Lease[], Error>({
+    queryKey: ['leases'],
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/leases`)
+      if (!response.ok) throw new Error('Failed to fetch leases')
+      return response.json()
+    },
+  })
+}
+
+export function useExpiringLeases() {
+  return useQuery<Lease[], Error>({
+    queryKey: ['leases', 'expiring'],
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/leases/search/expiring`)
+      if (!response.ok) throw new Error('Failed to fetch expiring leases')
+      return response.json()
+    },
+  })
+}
+
+export function useLegalMatters() {
+  return useQuery<LegalMatter[], Error>({
+    queryKey: ['legal-matters'],
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/legal/matters`)
+      if (!response.ok) throw new Error('Failed to fetch legal matters')
+      return response.json()
+    },
+  })
+}
+
+export function useOperationsTasks() {
+  return useQuery<Task[], Error>({
+    queryKey: ['operations-tasks'],
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/operations/tasks`)
+      if (!response.ok) throw new Error('Failed to fetch operations tasks')
+      return response.json()
+    },
+  })
+}
+
+export function useOperationsWorkflows() {
+  return useQuery<Workflow[], Error>({
+    queryKey: ['operations-workflows'],
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/operations/workflows`)
+      if (!response.ok) throw new Error('Failed to fetch workflows')
+      return response.json()
+    },
+  })
+}
+
+export function useContracts() {
+  return useQuery<Contract[], Error>({
+    queryKey: ['contracts'],
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/contracts/contracts`)
+      if (!response.ok) throw new Error('Failed to fetch contracts')
+      return response.json()
+    },
+  })
+}
