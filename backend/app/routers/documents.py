@@ -15,6 +15,9 @@ from ..models.identity import User
 from ..models.documents import Document, DocumentPage, DocumentChunk
 from ..schemas.documents import Document as DocumentSchema
 from ..security import get_current_user
+from ..security_pqc.envelope import document_envelope_service
+from ..security_pqc.manifest import manifest_signing_service
+from ..security_pqc.audit_vault import evidence_vault_service
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
@@ -193,6 +196,77 @@ async def upload_document(
     db.commit()
     db.refresh(db_doc)
 
+    # Quantum-Resilient Security Pipeline (FIPS 203, FIPS 204, FIPS 205, AES-256-GCM)
+    security_metadata = {}
+    try:
+        with open(storage_path, "rb") as f_raw:
+            raw_doc_bytes = f_raw.read()
+
+        # 1. AES-256-GCM envelope encryption wrapped under ML-KEM-768
+        envelope = document_envelope_service.encrypt_document(
+            plaintext_bytes=raw_doc_bytes,
+            organization_id=current_user.organization_id,
+            document_id=file_id,
+            version=1,
+            additional_metadata={"filename": file.filename, "size_bytes": file_size}
+        )
+
+        # Store encrypted bytes
+        enc_storage_path = f"{storage_path}.enc"
+        with open(enc_storage_path, "wb") as f_enc:
+            f_enc.write(envelope.encrypted_bytes)
+
+        # 2. Canonical manifest with hybrid ML-DSA-65 and Ed25519 signatures
+        manifest = manifest_signing_service.create_and_sign_manifest(
+            organization_id=current_user.organization_id,
+            document_id=file_id,
+            document_version=1,
+            document_digest_sha384=envelope.plaintext_digest_sha384,
+            source_metadata={
+                "filename": file.filename,
+                "file_size": file_size,
+                "mime_type": file.content_type
+            },
+            encryption_reference={
+                "algorithm": envelope.encryption_algorithm,
+                "kem_algorithm": envelope.key_establishment_algorithm,
+                "kem_key_id": envelope.kem_key_id
+            },
+            provenance={
+                "uploaded_by": current_user.email or current_user.id,
+                "storage_path": storage_path,
+                "encrypted_path": enc_storage_path
+            },
+            policy="hybrid"
+        )
+
+        # 3. Signed audit event in Evidence Vault
+        evidence_vault_service.append_event(
+            organization_id=current_user.organization_id,
+            actor_id=current_user.id,
+            action="document_upload_encrypted",
+            resource_id=file_id,
+            resource_type="document",
+            payload={
+                "filename": file.filename,
+                "file_size": file_size,
+                "sha384_digest": envelope.plaintext_digest_sha384,
+                "kem_key_id": envelope.kem_key_id,
+                "signatures_count": len(manifest.signatures)
+            }
+        )
+
+        security_metadata = {
+            "pqc_envelope_encrypted": True,
+            "encryption_algorithm": envelope.encryption_algorithm,
+            "key_establishment": envelope.key_establishment_algorithm,
+            "kem_key_id": envelope.kem_key_id,
+            "manifest_digest_sha384": manifest.canonical_digest_sha384(),
+            "manifest_signatures": [s.algorithm for s in manifest.signatures]
+        }
+    except Exception as sec_err:
+        print(f"Quantum security pipeline notice: {sec_err}")
+
     # Extract text if possible
     extracted_text = ""
     try:
@@ -218,7 +292,8 @@ async def upload_document(
         "status": "uploaded",
         "message": f"Successfully uploaded {db_doc.filename}",
         "parameters": parameters,
-        "obligations": obligations
+        "obligations": obligations,
+        "security": security_metadata
     }
 
 

@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import os
 
 from app.core.config import settings, validate_file_upload, ALLOWED_EXTENSIONS, MAX_FILE_SIZE_MB
-from app.routers import auth, towers, documents, leases, legal, operations, contracts, ai
+from app.routers import auth, towers, documents, leases, legal, operations, contracts, ai, security_center
 
 app = FastAPI(
     title="Pegorion Platform API",
@@ -34,6 +34,7 @@ app.include_router(legal.router, prefix="/api/v1")
 app.include_router(operations.router, prefix="/api/v1")
 app.include_router(contracts.router, prefix="/api/v1")
 app.include_router(ai.router, prefix="/api/v1")
+app.include_router(security_center.router, prefix="/api/v1")
 
 @app.get("/")
 def root():

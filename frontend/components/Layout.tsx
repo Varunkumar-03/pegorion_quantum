@@ -10,7 +10,8 @@ import {
   Home,
   Search,
   User,
-  LogOut
+  LogOut,
+  Shield
 } from 'lucide-react'
 
 const navItems = [
@@ -20,6 +21,7 @@ const navItems = [
   { name: 'Legal Intelligence', href: '/legal', icon: Scale },
   { name: 'Operations', href: '/operations', icon: Settings },
   { name: 'AI Workspace', href: '/ai', icon: Search },
+  { name: 'Security Center', href: '/security', icon: Shield },
 ]
 
 export default function Layout({ children }: { children: ReactNode }) {
