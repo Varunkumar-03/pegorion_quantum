@@ -2,184 +2,197 @@ import { ReactNode, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import {
-  Menu,
   Shield,
+  Layers,
   Key,
-  Lock,
+  FileCheck,
   Database,
   Sliders,
-  Activity,
+  Cpu,
+  ExternalLink,
+  Lock,
   User,
-  LogOut
+  CheckCircle2,
+  Menu,
+  X
 } from 'lucide-react'
 
-const navItems = [
-  { name: 'Security Overview', href: '/', tab: 'inventory', icon: Shield },
-  { name: 'Key Lifecycle', href: '/?tab=keys', tab: 'keys', icon: Key },
-  { name: 'Document Envelope', href: '/?tab=document', tab: 'document', icon: Lock },
-  { name: 'Evidence Vault', href: '/?tab=vault', tab: 'vault', icon: Database },
-  { name: 'Policy & Holds', href: '/?tab=policy', tab: 'policy', icon: Sliders },
-  { name: 'Benchmarks & Telemetry', href: '/?tab=benchmarks', tab: 'benchmarks', icon: Activity },
+export interface NavTabItem {
+  id: 'inventory' | 'keys' | 'document' | 'vault' | 'policy' | 'benchmarks'
+  label: string
+  icon: any
+}
+
+export const SECURITY_TABS: NavTabItem[] = [
+  { id: 'inventory', label: 'Cryptographic Inventory', icon: Layers },
+  { id: 'keys', label: 'Key Lifecycle', icon: Key },
+  { id: 'document', label: 'Document Envelope & Signatures', icon: FileCheck },
+  { id: 'vault', label: 'Evidence Vault & Audit Chain', icon: Database },
+  { id: 'policy', label: 'Organization & Legal Hold Policy', icon: Sliders },
+  { id: 'benchmarks', label: 'Platform Benchmarks', icon: Cpu },
 ]
 
-export default function Layout({ children }: { children: ReactNode }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+interface LayoutProps {
+  children: ReactNode
+  activeTab?: 'inventory' | 'keys' | 'document' | 'vault' | 'policy' | 'benchmarks'
+  onTabChange?: (tab: 'inventory' | 'keys' | 'document' | 'vault' | 'policy' | 'benchmarks') => void
+}
+
+export default function Layout({ children, activeTab = 'inventory', onTabChange }: LayoutProps) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const router = useRouter()
 
-  const isCurrent = (tab: string, href: string) => {
-    const currentTab = (router.query.tab as string) || 'inventory'
-    if (tab === 'inventory' && href === '/' && !router.query.tab) return true
-    return currentTab === tab
+  const handleSelectTab = (tabId: NavTabItem['id']) => {
+    if (onTabChange) {
+      onTabChange(tabId)
+    } else {
+      router.push(`/?tab=${tabId}`)
+    }
+    setMobileMenuOpen(false)
   }
 
   return (
-    <div className="flex h-screen bg-[#F4F6FA] text-slate-900">
-      {/* Sidebar with Dark Navy color palette from reference */}
-      <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-[#0B1A2E] border-r border-[#162D4A] z-40">
-        <div className="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto">
-          <div className="px-6 pt-5 pb-2 flex items-center justify-between">
-            <Link href="/" className="block focus:outline-none">
-              {/* VERTICAL BRIDGE OFFICIAL VECTOR LOGO (Pure White, Zero Background, High Res) */}
-              <img
-                src="/vertical-bridge-white.svg"
-                alt="Vertical Bridge"
-                className="h-12 w-auto max-w-[200px] object-contain drop-shadow-sm transition-opacity hover:opacity-90"
-              />
-            </Link>
-          </div>
-
-          <nav className="flex-1 flex flex-col px-3 pb-2 space-y-1 mt-6">
-            {navItems.map((item) => {
-              const Icon = item.icon
-              const active = isCurrent(item.tab, item.href)
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`group flex items-center px-3.5 py-2.5 text-sm rounded-none transition-colors ${
-                    active
-                      ? 'bg-[#163356] text-white border-l-4 border-blue-500 font-semibold'
-                      : 'text-slate-300 hover:text-white hover:bg-[#132842] font-medium'
-                  }`}
-                >
-                  <Icon
-                    className={`mr-3 flex-shrink-0 h-5 w-5 transition-colors ${
-                      active ? 'text-blue-400' : 'text-slate-400 group-hover:text-slate-200'
-                    }`}
-                  />
-                  {item.name}
-                </Link>
-              )
-            })}
-          </nav>
-
-          <div className="px-4 mt-auto border-t border-[#162D4A] pt-4">
-            <div className="flex items-center text-xs text-slate-400">
-              <Shield className="w-4 h-4 mr-2 text-blue-400" />
-              <span>Pegorion Quantum PQC</span>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
-        <div className="md:hidden fixed inset-0 z-50 flex">
-          <div
-            className="fixed inset-0 bg-black/50"
-            onClick={() => setSidebarOpen(false)}
-          />
-          <aside className="relative flex w-64 flex-col bg-[#0B1A2E] border-r border-[#162D4A]">
-            <div className="flex items-center justify-between px-6 pt-5 pb-4">
-              <Link href="/" className="block focus:outline-none" onClick={() => setSidebarOpen(false)}>
+    <div className="min-h-screen bg-[#F4F6FA] text-slate-900 flex flex-col">
+      {/* Top Header Bar */}
+      <header className="bg-[#0B1A2E] border-b border-[#162D4A] sticky top-0 z-50 shadow-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Left: Branding */}
+            <div className="flex items-center gap-4">
+              <Link href="/" className="flex items-center gap-3 focus:outline-none">
                 <img
                   src="/vertical-bridge-white.svg"
                   alt="Vertical Bridge"
-                  className="h-11 w-auto max-w-[180px] object-contain drop-shadow-sm"
+                  className="h-9 w-auto max-w-[170px] object-contain drop-shadow-sm transition-opacity hover:opacity-90"
                 />
+                <span className="hidden sm:inline-block border-l border-slate-600 pl-3 text-xs font-semibold tracking-wider uppercase text-slate-300">
+                  Quantum PQC Security
+                </span>
               </Link>
-              <button
-                onClick={() => setSidebarOpen(false)}
-                className="rounded-none p-2 text-slate-400 hover:bg-[#162D4A] hover:text-white"
+            </div>
+
+            {/* Right: Operational Status Badges */}
+            <div className="hidden md:flex items-center gap-3">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 text-xs font-medium rounded-full">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>NIST FIPS 203/204/205 Active</span>
+              </div>
+
+              <a
+                href="http://localhost:8000/docs"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1 px-3 py-1 text-xs font-medium text-slate-300 hover:text-white bg-[#162D4A] hover:bg-[#1C3A5E] border border-slate-700 transition-colors"
+                title="Open Interactive API Docs (Swagger)"
               >
-                <Menu className="h-6 w-6" />
+                <span>API Docs</span>
+                <ExternalLink className="w-3 h-3 text-slate-400" />
+              </a>
+
+              <div className="flex items-center gap-2 pl-3 border-l border-slate-700 text-xs text-slate-400">
+                <div className="w-7 h-7 rounded-full bg-blue-600/30 border border-blue-500/50 flex items-center justify-center text-blue-300 font-bold">
+                  VB
+                </div>
+                <div className="hidden lg:block text-left">
+                  <div className="text-white font-medium text-xs leading-none">Security Officer</div>
+                  <div className="text-[10px] text-slate-400 leading-tight">org-vb-default</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="flex md:hidden">
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2 text-slate-300 hover:text-white focus:outline-none"
+              >
+                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
             </div>
-            <nav className="flex-1 flex flex-col px-3 pb-2 space-y-1">
-              {navItems.map((item) => {
-                const Icon = item.icon
-                const active = isCurrent(item.tab, item.href)
+          </div>
+        </div>
+
+        {/* Primary Navigation Tabs */}
+        <div className="bg-[#10243E] border-t border-[#1B3659]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav className="hidden md:flex space-x-1 overflow-x-auto py-0">
+              {SECURITY_TABS.map((tab) => {
+                const Icon = tab.icon
+                const isActive = activeTab === tab.id
                 return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={`group flex items-center px-3.5 py-2.5 text-sm rounded-none transition-colors ${
-                      active
-                        ? 'bg-[#163356] text-white border-l-4 border-blue-500 font-semibold'
-                        : 'text-slate-300 hover:text-white hover:bg-[#132842] font-medium'
+                  <button
+                    key={tab.id}
+                    onClick={() => handleSelectTab(tab.id)}
+                    className={`flex items-center gap-2 py-3 px-4 text-xs font-semibold whitespace-nowrap border-b-2 transition-all ${
+                      isActive
+                        ? 'border-blue-400 text-white bg-[#163356]'
+                        : 'border-transparent text-slate-300 hover:text-white hover:bg-[#142B48]'
                     }`}
-                    onClick={() => setSidebarOpen(false)}
                   >
-                    <Icon
-                      className={`mr-3 flex-shrink-0 h-5 w-5 ${
-                        active ? 'text-blue-400' : 'text-slate-400 group-hover:text-slate-200'
-                      }`}
-                    />
-                    {item.name}
-                  </Link>
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-blue-400' : 'text-slate-400'}`} />
+                    <span>{tab.label}</span>
+                  </button>
                 )
               })}
             </nav>
-          </aside>
-        </div>
-      )}
-
-      {/* Main content area */}
-      <div className="flex flex-col flex-1 md:pl-64 overflow-y-auto">
-        {/* Mobile header */}
-        <div className="md:hidden flex items-center justify-between p-4 border-b border-slate-200 bg-white shadow-sm">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="rounded-none p-2 text-slate-600 hover:bg-slate-100"
-          >
-            <Menu className="h-6 w-6" />
-          </button>
-          <Link href="/" className="block focus:outline-none">
-            <img
-              src="/vertical-bridge-color.svg"
-              alt="Vertical Bridge"
-              className="h-8 w-auto max-w-[160px] object-contain"
-            />
-          </Link>
-          <div className="w-10" />
-        </div>
-
-        <main className="flex-1">
-          <div className="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-            {children}
           </div>
-        </main>
+        </div>
 
-        <footer className="bg-white border-t border-slate-200 py-3 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-          <div className="flex justify-between items-center text-xs text-slate-500">
-            <div className="flex items-center">
-              <span>© 2026 Vertical Bridge Infrastructure. All rights reserved.</span>
-            </div>
-            <div className="flex items-center space-x-4">
+        {/* Mobile Dropdown Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-[#0E2036] border-t border-[#1C385C] px-3 py-2 space-y-1">
+            {SECURITY_TABS.map((tab) => {
+              const Icon = tab.icon
+              const isActive = activeTab === tab.id
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => handleSelectTab(tab.id)}
+                  className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-medium rounded-none text-left ${
+                    isActive
+                      ? 'bg-blue-600 text-white font-semibold'
+                      : 'text-slate-300 hover:bg-[#163050] hover:text-white'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{tab.label}</span>
+                </button>
+              )}
+            )}
+            <div className="pt-2 border-t border-slate-700/60 mt-2 flex justify-between items-center text-xs text-slate-400 px-3 py-1">
+              <span>NIST FIPS 203/204/205 Active</span>
               <a
-                href="https://pegorion.com/"
+                href="http://localhost:8000/docs"
                 target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-2 text-slate-500 hover:text-blue-600 transition-colors"
-                title="Visit Pegorion"
+                rel="noreferrer"
+                className="text-blue-400 hover:underline"
               >
-                <span className="hidden sm:inline">Built with Pegorion Platform</span>
-                <LogOut className="w-4 h-4 text-slate-400 group-hover:text-blue-600" />
+                Swagger API
               </a>
             </div>
           </div>
-        </footer>
-      </div>
+        )}
+      </header>
+
+      {/* Main Full-Width Content Area */}
+      <main className="flex-1 max-w-7xl mx-auto w-full py-6 px-4 sm:px-6 lg:px-8">
+        {children}
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-white border-t border-slate-200 py-4 px-4 sm:px-6 lg:px-8 mt-auto">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-2">
+          <div className="flex items-center gap-2">
+            <Shield className="w-4 h-4 text-blue-600" />
+            <span>Pegorion Quantum-Resilient Security Platform • NIST FIPS 203 / 204 / 205 Compliance Engine</span>
+          </div>
+          <div className="flex items-center space-x-4">
+            <span className="text-slate-400">Environment: Local Dev Provider</span>
+            <span className="text-slate-400">•</span>
+            <span className="font-mono text-[11px] text-slate-600">PQC-ENV-1.0</span>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

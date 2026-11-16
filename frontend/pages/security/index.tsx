@@ -343,7 +343,7 @@ export default function SecurityCenter() {
   }
 
   return (
-    <Layout>
+    <Layout activeTab={activeTab} onTabChange={setActiveTab}>
       <Head>
         <title>Quantum-Resilient Security Center | Pegorion Platform</title>
       </Head>
@@ -417,35 +417,6 @@ export default function SecurityCenter() {
               All reported verification states reflect live backend checks (allowed states: PASS, FAIL, NOT CONFIGURED, NOT TESTED, VERIFICATION UNAVAILABLE).
             </p>
           </div>
-        </div>
-
-        {/* Tab Navigation */}
-        <div className="flex border-b border-slate-200 bg-white px-4">
-          {[
-            { id: 'inventory', label: 'Cryptographic Inventory', icon: Layers },
-            { id: 'keys', label: 'Key Lifecycle (Module A)', icon: Key },
-            { id: 'document', label: 'Document Envelope & Signatures', icon: FileCheck },
-            { id: 'vault', label: 'Evidence Vault & Audit Chain', icon: Database },
-            { id: 'policy', label: 'Organization & Legal Hold Policy', icon: Sliders },
-            { id: 'benchmarks', label: 'Platform Benchmarks', icon: Cpu },
-          ].map((tab) => {
-            const Icon = tab.icon
-            const active = activeTab === tab.id
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 py-3.5 px-4 text-xs font-semibold border-b-2 transition-colors ${
-                  active
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                {tab.label}
-              </button>
-            )
-          })}
         </div>
 
         {/* TAB 1: Cryptographic Inventory */}
