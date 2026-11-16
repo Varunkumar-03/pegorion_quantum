@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react'
+import { ReactNode, useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import {
@@ -14,7 +14,9 @@ import {
   User,
   CheckCircle2,
   Menu,
-  X
+  X,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react'
 
 export interface NavTabItem {
@@ -40,7 +42,42 @@ interface LayoutProps {
 
 export default function Layout({ children, activeTab = 'inventory', onTabChange }: LayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const navRef = useRef<HTMLDivElement>(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
   const router = useRouter()
+
+  const checkScroll = () => {
+    if (navRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = navRef.current
+      setCanScrollLeft(scrollLeft > 2)
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 2)
+    }
+  }
+
+  useEffect(() => {
+    checkScroll()
+    window.addEventListener('resize', checkScroll)
+    return () => window.removeEventListener('resize', checkScroll)
+  }, [])
+
+  useEffect(() => {
+    checkScroll()
+    if (navRef.current) {
+      const activeElement = navRef.current.querySelector('[data-active="true"]') as HTMLElement
+      if (activeElement) {
+        activeElement.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+      }
+    }
+  }, [activeTab])
+
+  const handleScroll = (direction: 'left' | 'right') => {
+    if (navRef.current) {
+      const scrollAmount = direction === 'left' ? -220 : 220
+      navRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' })
+      setTimeout(checkScroll, 300)
+    }
+  }
 
   const handleSelectTab = (tabId: NavTabItem['id']) => {
     if (onTabChange) {
@@ -112,18 +149,42 @@ export default function Layout({ children, activeTab = 'inventory', onTabChange 
           </div>
         </div>
 
-        {/* Primary Navigation Tabs */}
-        <div className="bg-[#10243E] border-t border-[#1B3659]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <nav className="hidden md:flex space-x-1 overflow-x-auto py-0">
+        {/* Primary Navigation Tabs with Smooth Scroll Arrows & Zero Native Scrollbar */}
+        <div className="bg-[#10243E] border-t border-[#1B3659] relative">
+          <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 flex items-center">
+            {/* Left Scroll Arrow */}
+            <button
+              type="button"
+              onClick={() => handleScroll('left')}
+              className={`hidden md:flex items-center justify-center p-2 text-slate-300 hover:text-white hover:bg-[#163356] border border-transparent rounded transition-colors focus:outline-none ${
+                canScrollLeft ? 'opacity-100 cursor-pointer' : 'opacity-25 cursor-default'
+              }`}
+              title="Scroll tabs left"
+              disabled={!canScrollLeft}
+              aria-label="Scroll tabs left"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+
+            {/* Nav Container with Browser Scrollbar Completely Suppressed */}
+            <div
+              ref={navRef}
+              onScroll={checkScroll}
+              style={{
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+              }}
+              className="flex-1 overflow-x-auto py-0 flex space-x-1 no-scrollbar [&::-webkit-scrollbar]:hidden scroll-smooth"
+            >
               {SECURITY_TABS.map((tab) => {
                 const Icon = tab.icon
                 const isActive = activeTab === tab.id
                 return (
                   <button
                     key={tab.id}
+                    data-active={isActive ? 'true' : 'false'}
                     onClick={() => handleSelectTab(tab.id)}
-                    className={`flex items-center gap-2 py-3 px-4 text-xs font-semibold whitespace-nowrap border-b-2 transition-all ${
+                    className={`flex items-center gap-2 py-3 px-4 text-xs font-semibold whitespace-nowrap border-b-2 transition-all flex-shrink-0 ${
                       isActive
                         ? 'border-blue-400 text-white bg-[#163356]'
                         : 'border-transparent text-slate-300 hover:text-white hover:bg-[#142B48]'
@@ -134,7 +195,21 @@ export default function Layout({ children, activeTab = 'inventory', onTabChange 
                   </button>
                 )
               })}
-            </nav>
+            </div>
+
+            {/* Right Scroll Arrow */}
+            <button
+              type="button"
+              onClick={() => handleScroll('right')}
+              className={`hidden md:flex items-center justify-center p-2 text-slate-300 hover:text-white hover:bg-[#163356] border border-transparent rounded transition-colors focus:outline-none ${
+                canScrollRight ? 'opacity-100 cursor-pointer' : 'opacity-25 cursor-default'
+              }`}
+              title="Scroll tabs right"
+              disabled={!canScrollRight}
+              aria-label="Scroll tabs right"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
